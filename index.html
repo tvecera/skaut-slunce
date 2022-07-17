@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="Sluneční kalkulačka 144. Hlubočepského oddílu – Fosilie. Součástí celotáborové hry, při které se budeme učit určovat polohu pomocí sextantu.">
+    <meta name="author" content="Tomáš Večeřa - info@tomasvecera.cz">
+    <title>Sluneční kalkulačka</title>
+    <link rel="canonical" href="https://slunce.hlubocepskyoddil.cz">
+    <link rel="icon" href="/image/favicon.png" type="image/png"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+    <script type="text/javascript">Loader.load();</script>
+    <link href="css/form-validation.css" rel="stylesheet">
+    <link href="css/safari-fix.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container">
+    <main>
+        <div class="py-2 text-center">
+            <img class="d-block mx-auto mb-2" src="image/logo.png" alt="Sluneční kalkulačka" width="200" height="200">
+            <h2>Sluneční kalkulačka</h2>
+            <p class="lead">Sluneční kalkulačka 144. Hlubočepského oddílu – Fosilie. Součástí celotáborové hry, při
+                které se budeme učit určovat polohu pomocí sextantu.</p>
+        </div>
+        <div class="row g-5">
+            <div class="col-md-12 col-lg-12">
+                <form id="form-sun" class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        <div class="col-sm-3">
+                            <label for="town" class="form-label">Místo</label>
+                            <select class="form-select" id="town" onchange="fillGps()">
+                                <option value="">Vyber...</option>
+                                <option value="praha">Praha</option>
+                                <option value="trnavka">Trnávka</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="latitude" class="form-label">Zeměpisná šířka</label>
+                            <input type="number" class="form-control" id="latitude" placeholder="" value="50.000000"
+                                   step="0.000001" required>
+                            <div class="invalid-feedback">
+                                Povinné pole
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="longitude" class="form-label">Zeměpisná délka</label>
+                            <input type="text" class="form-control" id="longitude" placeholder="" value="15.000000"
+                                   step="0.000001" required>
+                            <div class="invalid-feedback">
+                                Povinné pole
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="datetime" class="form-label">Datum</label>
+                            <input type="datetime-local" class="form-control" id="datetime" placeholder="" value=""
+                                   required>
+                            <div class="invalid-feedback">
+                                Povinné pole
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-6">
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between lh-sm bg-dark text-white border-white">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Kulminace</h6>
+                                        <small>Okamžik, kdy slunce během dne dosáhne svého nejvyššího bodu</small>
+                                    </div>
+                                    <span id="culmination">00:00:00</span>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Svítání</h6>
+                                        <small class="text-muted">Čas, který označuje začátek občanského svítaní před
+                                            východem slunce. V době svítání je slunce ještě 6° pod obzorem.</small>
+                                    </div>
+                                    <span id="civil-twilight-rise">00:00:00</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Východ slunce</h6>
+                                        <small class="text-muted">Východ slunce je to okamžik, kdy se horní okraj slunce
+                                            dotkne obzoru.</small>
+                                    </div>
+                                    <span id="sunrise">00:00:00</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Západ slunce</h6>
+                                        <small class="text-muted">Západ slunce, v okamžiku, kdy se horní okraj slunce
+                                            dotkne obzoru.</small>
+                                    </div>
+                                    <span id="sunset">00:00:00</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Soumrak</h6>
+                                        <small class="text-muted">Čas, který označuje konec občanského soumraku po
+                                            západu slunce a nástup večerní tmy.</small>
+                                    </div>
+                                    <span id="civil-twilight-set">00:00:00</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between lh-sm bg-dark text-white border-white">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Maximální úhel nad obzorem</h6>
+                                        <small>Maximální úhel mezi horizontem a středem Slunce včetně refrakce.</small>
+                                    </div>
+                                    <span id="max-elevation">00.00°</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Denní světlo</h6>
+                                        <small class="text-muted">Délka trvání slunečního svitu.</small>
+                                    </div>
+                                    <span id="daylight-duration">00h 00m</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Vzdálenost [km]</h6>
+                                        <small class="text-muted">Vzdálenost mezi Zemí a Sluncem.</small>
+                                    </div>
+                                    <span id="distance">000 000 000</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Úhel nad obzorem</h6>
+                                        <small>Úhel mezi horizontem a středem Slunce včetně refrakce.</small>
+                                    </div>
+                                    <span id="elevation">00.00°</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Azimut</h6>
+                                        <small class="text-muted">Horizontální úhel (také azimut) je úhel mezi
+                                            poledníkovou rovinou Země a svislou rovinou Slunce.</small>
+                                    </div>
+                                    <span id="azimuth">00.00°</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm bg-dark text-white border-white">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Deklinace</h6>
+                                        <small>Deklinace Slunka v kulminaci <span id="declination-info"></span></small>
+                                    </div>
+                                    <span id="declination">00.000°</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <button id="btn" class="w-100 btn btn-dark btn-lg" type="submit">Výpočet</button>
+                </form>
+
+                <form id="form-position" class="needs-validation" novalidate>
+                    <hr class="my-4">
+
+                    <h3>Výpočet polohy z naměřených hodnot</h3>
+
+                    <p class="lead">Zadejte hodnoty, které jste změřili níže do tabulky. Po stisknutí tlačítka „Moje
+                        poloha“ se naše kalkulačka pokusí sama odhadnout ze zadaných hodnot co nejvyšší výšku / úhel
+                        slunce na obloze a čas. Pro zajímavost, naše kalkulačka pro to využívá tzv. polynomiální
+                        interpolaci (využívá Nevillův algoritmus). Jestli chcete spočíst pozici jenom pro jednu hodnotu,
+                        vyplňte pouze jednu hodnotu.</p>
+
+                    <hr class="my-4">
+                    <div class="row g-3">
+                        <div class="col-sm-2">
+                            <label for="measure-time-1" class="form-label">1. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-1" placeholder=""
+                                   value="11:30" required>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-1" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-1"
+                                   placeholder="" value="58.36"
+                                   step="0.01" required>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="measure-time-2" class="form-label">2. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-2" placeholder=""
+                                   value="12:15">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-2" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-2"
+                                   placeholder="" value="62.36"
+                                   step="0.01">
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="measure-time-3" class="form-label">3. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-3" placeholder="00:00"
+                                   value="14:15">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-3" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-3"
+                                   placeholder="" value="60.2"
+                                   step="0.01">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-time-4" class="form-label">4. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-4" placeholder="14:00"
+                                   value="">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-4" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-4"
+                                   placeholder="" value=""
+                                   step="0.01">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-time-5" class="form-label">5. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-5" placeholder=""
+                                   value="">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-5" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-5"
+                                   placeholder="" value=""
+                                   step="0.01">
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="measure-time-6" class="form-label">6. Čas</label>
+                            <input type="time" class="measure-time form-control" id="measure-time-6" placeholder=""
+                                   value="">
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="measure-elevation-6" class="form-label">Úhel</label>
+                            <input type="number" class="measure-elevation form-control" id="measure-elevation-6"
+                                   placeholder="" value=""
+                                   step="0.01">
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <button id="btn3" class="w-100 btn btn-warning btn-lg" type="submit">Moje poloha</button>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6">
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Kulminace</h6>
+                                        <small class="text-muted">Čas kdy je slunce nejvýše dle zadaných hodnot
+                                            měření</small>
+                                    </div>
+                                    <span id="measure-culmination">00:00</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Úhel nad obzorem</h6>
+                                        <small class="text-muted">Úhel mezi horizontem a středem Slunce včetně
+                                            refrakce.</small>
+                                    </div>
+                                    <span id="measure-elevation">00.00°</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Deklinace</h6>
+                                        <small class="text-muted">Deklinace Slunka v kulminaci</small>
+                                    </div>
+                                    <span id="measure-declination">00.000°</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Zeměpisná šířka</h6>
+                                        <small class="text-muted">Spočítaná zeměpisná šířka</small>
+                                    </div>
+                                    <span id="measure-lat">00.000000</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Zeměpisná délka</h6>
+                                        <small class="text-muted">Spočítaná zeměpisní délka</small>
+                                    </div>
+                                    <span id="measure-lon">00.000000</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div class="me-5">
+                                        <h6 class="my-0">Vzálenost [km]</h6>
+                                        <small class="text-muted">Vzdálenost od zvoleného místa</small>
+                                    </div>
+                                    <span id="measure-distance">00.00</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6 col-lg-6">
+                            <div id="seznam-mapa" style="height: 95%; width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <canvas id="chart1"></canvas>
+
+                </form>
+
+                <div class="col-md-12 col-lg-12">
+                    <hr class="my-4">
+
+                    <h3>Data pro zvolený den</h3>
+
+                    <hr class="my-4">
+
+                    <div class="row g-3 mb-5">
+                        <table class="table" id="tabledata">
+                            <thead>
+                            <tr>
+                                <th scope="col">Čas</th>
+                                <th scope="col">Úhel nad obzorem</th>
+                                <th scope="col">Deklinace</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button id="btn2" class="w-100 btn btn-dark btn-lg" type="submit">Stáhnout</button>
+
+                    <hr class="my-4">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2022 - 144. Hlubočepský oddíl - Fosilie</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a class="text-dark" href="https://hlubocepskyoddil.cz">Naše stránky</a></li>
+            <li class="list-inline-item"><a class="text-dark" href="https://www.blanik.info">7. středisko Blaník</a>
+            </li>
+            <li class="list-inline-item"><a class="text-dark" href="https://www.skaut.cz">Junák</a></li>
+        </ul>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/form-validation.js"></script>
+<script src="js/slunce.min.js"></script>
+</body>
+</html>
