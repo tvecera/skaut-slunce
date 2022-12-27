@@ -348,6 +348,8 @@
         </div>
     </main>
 
+    <div id="disqus_thread"></div>
+
     <footer class="my-5 pt-5 text-muted text-center text-small">
         <p class="mb-1">&copy; 2022 - 2023 - 144. Hlubočepský oddíl - Fosilie</p>
         <ul class="list-inline">
@@ -363,5 +365,17 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/form-validation.js"></script>
 <script src="js/slunce.min.js"></script>
+<script>
+    var disqus_config = function () {
+        this.page.url = 'https://slunce.hlubocepskyoddil.cz';
+        this.page.identifier = 'slunecni-kalkulacka';
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://slunecnikalkulacka.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
 </body>
 </html>
